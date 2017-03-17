@@ -1,0 +1,4 @@
+<?php
+
+$users = [];
+$users['user'] = 'password_md5';

@@ -1,0 +1,215 @@
+<!doctype HTML>
+<html>
+  <head>
+    <title>cloudflare-mgr</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+    <script   src="https://code.jquery.com/jquery-1.12.4.min.js"   integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="   crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    <script src="main.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        height: 100%;
+        max-height: 100%;
+        background-color: #fff;
+      }
+
+      #main {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+      }
+
+      #sidebar {
+        border-right: 1px solid #aaa;
+        height: 100%;
+      }
+
+      #zones .glyphicon {
+        color: black !important;
+        font-size: 10px;
+      }
+
+      a[disabled] {
+        opacity: 0.5;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <div id="main" ng-app="app">
+      <div id="sidebar" class="col-md-3">
+        <h1 id="title">cloudflare-mgr</h1>
+
+        <br>
+
+        <div id="zones" ng-controller="ZonesController">
+
+          <h4>Zones</h4>
+
+          <ul ng-show="zones.length">
+            <li ng-repeat="zone in zones">
+              <a href="javascript:;" ng-click="getZoneDetails(zone.id)">{{zone.name}}</a>
+              <a href="javascript:;" ng-click="showZoneRecords(zone.id)">
+                <span class="glyphicon glyphicon-triangle-bottom" ng-show="!zone_open[zone.id]"></span>
+                <span class="glyphicon glyphicon-triangle-top" ng-show="zone_open[zone.id]"></span>
+              </a>
+
+              <ul ng-show="zone_open[zone.id]">
+                <li ng-repeat="record in zone_records[zone.id]">
+                  <a href="javascript:;" ng-click="getRecordDetails(zone.id, record.id)">
+                    {{record.name}}
+                  </a>
+                </li>
+              </ul>
+
+              <div ng-show="zone_open[zone.id]">
+                <a href="javascript:;" ng-click="setZonePage(zone.id, (zone_page[zone.id] || 1) - 1)" ng-disabled="zone_page[zone.id] <= 1">
+                  <span class="glyphicon glyphicon-triangle-left"></span>
+                </a>
+
+                <span>{{zone_page[zone.id] || 1}} / {{zone_total_pages[zone.id] || 1}}</span>
+
+                <a href="javascript:;" ng-click="setZonePage(zone.id, (zone_page[zone.id] || 1) + 1)" ng-disabled="zone_page[zone.id] >= zone_total_pages[zone.id]">
+                  <span class="glyphicon glyphicon-triangle-right"></span>
+                </a>
+              </div>
+            </li>
+          </ul>
+
+          <div ng-show="!zones.length">
+            <img src="loading.gif">
+          </div>
+
+          <div ng-show="zones.length">
+            <a href="javascript:;" ng-click="setPage(page - 1)" ng-disabled="page <= 1">
+              <span class="glyphicon glyphicon-triangle-left"></span>
+            </a>
+
+            <span>{{page}} / {{total_pages}}</span>
+
+            <a href="javascript:;" ng-click="setPage(page + 1)" ng-disabled="page >= total_pages">
+              <span class="glyphicon glyphicon-triangle-right"></span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <div id="content" class="col-md-9" ng-controller="ContentController">
+        <div ng-show="loading" style="margin-top: 20px">
+          <img src="loading.gif">
+        </div>
+
+        <div ng-show="!loading && context == 'zone'">
+          <h3>Zone {{zone.name}}</h3>
+
+          <br>
+
+          <a href="javascript:;" ng-click="setContext('new_record')">Add Record</a>
+        </div>
+
+        <div ng-show="!loading && context == 'record'">
+          <h3>Record {{record.name}}</h3>
+
+          <div class="record-details">
+            <form ng-submit="updateRecord(record)" style="margin-top: 40px">
+
+              <div class="form-group row">
+                <label for="example-text-input" class="col-md-2 col-form-label">Name</label>
+                <div class="col-md-10">
+                  <input class="form-control" ng-model="record.name">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="example-text-input" class="col-md-2 col-form-label">Content</label>
+                <div class="col-md-10">
+                  <input class="form-control" ng-model="record.content">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="example-search-input" class="col-md-2 col-form-label">Type</label>
+                <div class="col-md-10">
+                  <input class="form-control" ng-model="record.type">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="example-email-input" class="col-md-2 col-form-label">TTL</label>
+                <div class="col-md-10">
+                  <input class="form-control" ng-model="record.ttl">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <div class="col-md-12">
+                  <button type="submit" class="btn btn-success">
+                    <span class="glyphicon glyphicon-check"></span>
+                    <span>Salvar</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+          <div ng-show="!loading && context == 'new_record'">
+            <h3>Add record to zone {{zone.name}}</h3>
+
+            <div class="record-details">
+              <form ng-submit="addRecord()" style="margin-top: 40px">
+
+                <div class="form-group row">
+                  <label for="example-text-input" class="col-md-2 col-form-label">Name</label>
+                  <div class="col-md-10">
+                    <input class="form-control" ng-model="new_record.name">
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="example-text-input" class="col-md-2 col-form-label">Content</label>
+                  <div class="col-md-10">
+                    <input class="form-control" ng-model="new_record.content">
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="example-search-input" class="col-md-2 col-form-label">Type</label>
+                  <div class="col-md-10">
+                    <input class="form-control" ng-model="new_record.type">
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="example-email-input" class="col-md-2 col-form-label">TTL</label>
+                  <div class="col-md-10">
+                    <input class="form-control" ng-model="new_record.ttl">
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-md-12">
+                    <button type="submit" class="btn btn-success">
+                      <span class="glyphicon glyphicon-check"></span>
+                      <span>Salvar</span>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

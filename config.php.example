@@ -1,0 +1,4 @@
+<?php
+
+define('CLOUDFLARE_AUTH_EMAIL', '');
+define('CLOUDFLARE_AUTH_KEY', '');
