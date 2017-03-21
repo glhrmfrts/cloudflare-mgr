@@ -51,6 +51,10 @@ angular.module('app', [])
                 });
         }
 
+        function addZone() {
+            EventService.emit('add_zone');
+        }
+
         function getZoneDetails(zone_id) {
             EventService.emit('get_zone_details', zone_id);
         }
@@ -98,6 +102,7 @@ angular.module('app', [])
         $scope.zone_open = {};
         $scope.zone_records = {};
         $scope.zones = [];
+        $scope.addZone = addZone;
         $scope.getZoneDetails = getZoneDetails;
         $scope.getRecordDetails = getRecordDetails;
         $scope.showZoneRecords = showZoneRecords;
@@ -127,9 +132,23 @@ angular.module('app', [])
                     $scope.context = 'record';
                     $scope.loading = false;
 
-                    console.log(response);
-
                     $scope.record = response.result;
+                });
+        }
+
+        function addZone() {
+            ApiService.post('/zones', $scope.new_zone)
+                .success(function(response) {
+                    if (response.success) {
+                        $scope.context = 'zone';
+                        $scope.zone = response.result;
+                        $scope.new_zone = {};
+
+                        return toastr.success('Zone added', 'Success');
+                    }
+                    else {
+                        return toastr.error(response.errors[0].message, 'Error');
+                    }
                 });
         }
 
@@ -162,15 +181,18 @@ angular.module('app', [])
                 });
         }
 
-        $scope.context = '';
+        $scope.context = 'new_zone';
         $scope.loading = false;
         $scope.zone = null;
         $scope.record = null;
         $scope.new_record = {};
+        $scope.new_zone = {};
         $scope.updateRecord = updateRecord;
         $scope.addRecord = addRecord;
+        $scope.addZone = addZone;
         $scope.setContext = function(c) { $scope.context = c; };
 
+        EventService.listen('add_zone', $scope.setContext.bind(null, 'new_zone'));
         EventService.listen('get_zone_details', onGetZoneDetails);
         EventService.listen('get_record_details', onGetRecordDetails);
     });

@@ -2,7 +2,7 @@
 
 require_once 'config.php';
 
-$ch = curl_init('https://api.cloudflare.com/client/v4/' . $_GET['endpoint'] . '?per_page=20&page=' . $_GET['page']);
+$ch = curl_init('https://api.cloudflare.com/client/v4' . $_GET['endpoint'] . '?per_page=20&page=' . $_GET['page']);
 
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $_GET['method']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents('php://input'));

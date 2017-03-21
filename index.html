@@ -13,32 +13,32 @@
 
     <style>
       body {
-        margin: 0;
-        padding: 0;
-        border: 0;
-        height: 100%;
-        max-height: 100%;
-        background-color: #fff;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      height: 100%;
+      max-height: 100%;
+      background-color: #fff;
       }
 
       #main {
-        position: absolute;
-        height: 100%;
-        width: 100%;
+      position: absolute;
+      height: 100%;
+      width: 100%;
       }
 
       #sidebar {
-        border-right: 1px solid #aaa;
-        height: 100%;
+      border-right: 1px solid #aaa;
+      height: 100%;
       }
 
       #zones .glyphicon {
-        color: black !important;
-        font-size: 10px;
+      color: black !important;
+      font-size: 10px;
       }
 
       a[disabled] {
-        opacity: 0.5;
+      opacity: 0.5;
       }
 
     </style>
@@ -53,7 +53,7 @@
 
         <div id="zones" ng-controller="ZonesController">
 
-          <h4>Zones</h4>
+          <h4>Zones <small class="pull-right"><a href="javascript:;" ng-click="addZone()">Add Zone</a></small></h4>
 
           <ul ng-show="zones.length">
             <li ng-repeat="zone in zones">
@@ -163,53 +163,79 @@
           </div>
         </div>
 
-          <div ng-show="!loading && context == 'new_record'">
-            <h3>Add record to zone {{zone.name}}</h3>
+        <div ng-show="!loading && context == 'new_record'">
+          <h3>Add record to zone {{zone.name}}</h3>
 
-            <div class="record-details">
-              <form ng-submit="addRecord()" style="margin-top: 40px">
+          <div class="record-details">
+            <form ng-submit="addRecord()" style="margin-top: 40px">
 
-                <div class="form-group row">
-                  <label for="example-text-input" class="col-md-2 col-form-label">Name</label>
-                  <div class="col-md-10">
-                    <input class="form-control" ng-model="new_record.name">
-                  </div>
+              <div class="form-group row">
+                <label for="example-text-input" class="col-md-2 col-form-label">Name</label>
+                <div class="col-md-10">
+                  <input class="form-control" ng-model="new_record.name">
                 </div>
+              </div>
 
-                <div class="form-group row">
-                  <label for="example-text-input" class="col-md-2 col-form-label">Content</label>
-                  <div class="col-md-10">
-                    <input class="form-control" ng-model="new_record.content">
-                  </div>
+              <div class="form-group row">
+                <label for="example-text-input" class="col-md-2 col-form-label">Content</label>
+                <div class="col-md-10">
+                  <input class="form-control" ng-model="new_record.content">
                 </div>
+              </div>
 
-                <div class="form-group row">
-                  <label for="example-search-input" class="col-md-2 col-form-label">Type</label>
-                  <div class="col-md-10">
-                    <input class="form-control" ng-model="new_record.type">
-                  </div>
+              <div class="form-group row">
+                <label for="example-search-input" class="col-md-2 col-form-label">Type</label>
+                <div class="col-md-10">
+                  <input class="form-control" ng-model="new_record.type">
                 </div>
+              </div>
 
-                <div class="form-group row">
-                  <label for="example-email-input" class="col-md-2 col-form-label">TTL</label>
-                  <div class="col-md-10">
-                    <input class="form-control" ng-model="new_record.ttl">
-                  </div>
+              <div class="form-group row">
+                <label for="example-email-input" class="col-md-2 col-form-label">TTL</label>
+                <div class="col-md-10">
+                  <input class="form-control" ng-model="new_record.ttl">
                 </div>
+              </div>
 
-                <div class="form-group row">
-                  <div class="col-md-12">
-                    <button type="submit" class="btn btn-success">
-                      <span class="glyphicon glyphicon-check"></span>
-                      <span>Salvar</span>
-                    </button>
-                  </div>
+              <div class="form-group row">
+                <div class="col-md-12">
+                  <button type="submit" class="btn btn-success">
+                    <span class="glyphicon glyphicon-check"></span>
+                    <span>Salvar</span>
+                  </button>
                 </div>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
+
+        <div ng-show="!loading && context == 'new_zone'">
+          <h3>Add zone</h3>
+
+          <div class="zone-details">
+            <form ng-submit="addZone()" style="margin-top: 40px">
+
+              <div class="form-group row">
+                <label for="example-text-input" class="col-md-2 col-form-label">Name</label>
+                <div class="col-md-10">
+                  <input class="form-control" ng-model="new_zone.name">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <div class="col-md-12">
+                  <button type="submit" class="btn btn-success">
+                    <span class="glyphicon glyphicon-check"></span>
+                    <span>Salvar</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
       </div>
     </div>
-  </body>
+</div>
+</body>
 </html>
